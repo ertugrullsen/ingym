@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ingym - Sınırlarını Zorla</title>
+    <meta name="description" content="ingym Fitness ve Pilates Salonu. Profesyonel eğitmenler eşliğinde hedeflerinize ulaşın.">
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#ff6a00', // Turuncu
+                        primaryHover: '#e65c00',
+                        darkBg: '#0f0f11', // Siyah arka plan
+                        darkCard: '#1a1a1d',
+                        lightBg: '#f8f9fa',
+                        lightCard: '#ffffff'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Styles for extra polish */
+        .glass-nav {
+            background: rgba(15, 15, 17, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 106, 0, 0.1);
+        }
+        
+        .light .glass-nav {
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        /* Hero Background with Overlay for readability */
+        .hero-section {
+            position: relative;
+            background-image: url('foto-1.webp'); /* Changed bg image */
+            background-position: center;
+            background-size: cover;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 15, 17, 0.7); /* Dark overlay for dark mode */
+        }
+
+        .light .hero-overlay {
+            background: rgba(255, 255, 255, 0.85); /* Light overlay for light mode for better readability */
+        }
+
+        .gallery-item {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            aspect-ratio: 1 / 1; /* Make all gallery items square */
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 25px -5px rgba(255, 106, 0, 0.4);
+            z-index: 10;
+        }
+
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: linear-gradient(to right, #ff6a00, #ff9d00);
+        }
+
+        /* Slider Styles */
+        .slider-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            border-radius: 1rem;
+        }
+        .slider-wrapper {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            height: 100%;
+        }
+        .slider-slide {
+            min-width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            z-index: 10;
+            border-radius: 9999px;
+            transition: background 0.3s;
+        }
+        .slider-btn:hover {
+            background: rgba(255, 106, 0, 0.8);
+        }
+        .slider-btn-prev { left: 1rem; }
+        .slider-btn-next { right: 1rem; }
+
+        /* Gallery Grid - More symmetric */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-lightBg text-gray-800 dark:bg-darkBg dark:text-gray-200 transition-colors duration-300 antialiased selection:bg-primary selection:text-white">
+
+    <nav class="glass-nav fixed w-full z-50 top-0 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <span class="font-black text-3xl tracking-tighter text-primary">ingym</span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="nav-link font-semibold hover:text-primary transition-colors" data-i18n="nav-home">Ana Sayfa</a>
+                    <a href="#about" class="nav-link font-semibold hover:text-primary transition-colors" data-i18n="nav-about">Hakkımızda</a>
+                    <a href="#management" class="nav-link font-semibold hover:text-primary transition-colors" data-i18n="nav-management">Yönetim</a>
+                    <a href="#gallery" class="nav-link font-semibold hover:text-primary transition-colors" data-i18n="nav-gallery">Galeri</a>
+                    <a href="#video-tour" class="nav-link font-semibold hover:text-primary transition-colors" data-i18n="nav-tour">Tanıtım Videosu</a>
+                    <a href="#contact" class="nav-link font-semibold hover:text-primary transition-colors" data-i18n="nav-contact">İletişim</a>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex items-center space-x-4 border-l border-gray-300 dark:border-gray-700 pl-4">
+                        <!-- Theme Toggle -->
+                        <button id="themeToggle" class="text-xl text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors focus:outline-none" title="Tema Değiştir / Toggle Theme">
+                            <i class="fas fa-moon dark:hidden"></i>
+                            <i class="fas fa-sun hidden dark:block"></i>
+                        </button>
+                        <!-- Language Toggle -->
+                        <button id="langToggle" class="flex items-center gap-2 text-sm font-bold text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors border-2 border-transparent hover:border-primary rounded-full px-3 py-1 focus:outline-none" title="Dil Değiştir / Change Language">
+                            <i class="fas fa-globe"></i> <span id="currentLangDisplay">EN</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center space-x-4">
+                    <button id="themeToggleMobile" class="text-xl text-gray-600 dark:text-gray-300 hover:text-primary transition-colors focus:outline-none">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:block"></i>
+                    </button>
+                    <button id="langToggleMobile" class="text-xl text-gray-600 dark:text-gray-300 hover:text-primary transition-colors focus:outline-none">
+                        <i class="fas fa-globe"></i>
+                    </button>
+                    <button id="mobileMenuBtn" class="text-2xl text-gray-800 dark:text-white focus:outline-none hover:text-primary transition-colors">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Panel -->
+        <div id="mobileMenu" class="hidden md:hidden bg-lightCard dark:bg-darkCard border-t border-gray-200 dark:border-gray-800 absolute w-full shadow-xl">
+            <div class="px-4 pt-2 pb-6 space-y-2">
+                <a href="#home" class="mobile-link block px-3 py-3 rounded-md text-base font-semibold hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-primary transition-colors" data-i18n="nav-home">Ana Sayfa</a>
+                <a href="#about" class="mobile-link block px-3 py-3 rounded-md text-base font-semibold hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-primary transition-colors" data-i18n="nav-about">Hakkımızda</a>
+                <a href="#management" class="mobile-link block px-3 py-3 rounded-md text-base font-semibold hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-primary transition-colors" data-i18n="nav-management">Yönetim</a>
+                <a href="#gallery" class="mobile-link block px-3 py-3 rounded-md text-base font-semibold hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-primary transition-colors" data-i18n="nav-gallery">Galeri</a>
+                <a href="#video-tour" class="mobile-link block px-3 py-3 rounded-md text-base font-semibold hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-primary transition-colors" data-i18n="nav-tour">Tanıtım Videosu</a>
+                <a href="#contact" class="mobile-link block px-3 py-3 rounded-md text-base font-semibold hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-primary transition-colors" data-i18n="nav-contact">İletişim</a>
+            </div>
+        </div>
+    </nav>
+
+    <header id="home" class="hero-section h-screen flex items-center justify-center pt-20">
+        <div class="hero-overlay"></div> <!-- Overlay for readability -->
+        <div class="text-center px-4 max-w-4xl mx-auto relative z-10">
+            <h1 class="text-5xl md:text-7xl font-black mb-6 tracking-tight dark:text-white text-gray-900">
+                <span data-i18n="hero-title1">Sınırlarını</span> <span class="text-gradient" data-i18n="hero-title2">Zorla</span>
+            </h1>
+            <p class="text-lg md:text-2xl mb-10 font-light dark:text-gray-300 text-gray-800" data-i18n="hero-subtitle"> <!-- Darker text for light mode -->
+                ingym ile gücünü keşfet, potansiyelini zirveye taşı. Profesyonel ekipmanlar ve uzman antrenörlerle hedefine ulaş!
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#about" class="px-8 py-4 bg-primary text-white font-bold rounded-full hover:bg-primaryHover hover:scale-105 transition-all shadow-lg shadow-primary/30" data-i18n="btn-discover">Keşfet</a>
+                <a href="#contact" class="px-8 py-4 bg-transparent border-2 border-gray-800 dark:border-white text-gray-800 dark:text-white font-bold rounded-full hover:bg-gray-800 hover:text-white dark:hover:bg-white dark:hover:text-gray-900 hover:scale-105 transition-all" data-i18n="btn-join">Bize Katıl</a>
+            </div>
+        </div>
+    </header>
+
+    <section id="about" class="py-24 bg-lightBg dark:bg-darkBg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-black mb-4 text-gray-900 dark:text-white">
+                    <span class="text-primary">ingym</span> <span data-i18n="about-title">Hakkında</span>
+                </h2>
+                <div class="w-24 h-1 bg-primary mx-auto rounded-full"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6 text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+                    <p data-i18n="about-p1">
+                        ingym, sadece bir spor salonu değil, bir yaşam tarzı merkezidir. Amacımız, her seviyeden bireyin fiziksel ve zihinsel potansiyeline ulaşmasını sağlamaktır.
+                    </p>
+                    <p data-i18n="about-p2">
+                        Modern ekipmanlarımız, ferah antrenman alanımız ve profesyonel ekibimizle size en iyi spor deneyimini sunmak için buradayız. Vücut geliştirme, fitness veya pilates; hedefiniz ne olursa olsun, doğru yerdesiniz.
+                    </p>
+                    <div class="flex items-center gap-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-800">
+                        <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary text-2xl">
+                            <i class="fas fa-dumbbell"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900 dark:text-white" data-i18n="about-feature1">Modern Ekipmanlar</h4>
+                            <p class="text-sm" data-i18n="about-feature1-desc">En son teknoloji cihazlar</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slider Section -->
+                <div class="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-lightCard dark:border-darkCard h-[400px]">
+                    <div class="slider-container" id="aboutSlider">
+                        <div class="slider-wrapper">
+                            <img src="foto-1.webp" alt="Gym Interior 1" class="slider-slide">
+                            <img src="foto-2.webp" alt="Gym Interior 2" class="slider-slide">
+                            <img src="foto-6.webp" alt="Gym Equipment" class="slider-slide">
+                            <img src="foto-7.webp" alt="Gym Details" class="slider-slide">
+                            <img src="foto-8.webp" alt="Gym Stairs" class="slider-slide">
+                        </div>
+                        <button class="slider-btn slider-btn-prev"><i class="fas fa-chevron-left"></i></button>
+                        <button class="slider-btn slider-btn-next"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6 pointer-events-none">
+                        <span class="text-white font-bold text-xl" data-i18n="about-image-text">Ferah ve Modern Alanlar</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="management" class="py-24 bg-lightCard dark:bg-darkCard">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-black mb-4 text-gray-900 dark:text-white" data-i18n="management-title">Yönetim Kadromuz</h2>
+                <div class="w-24 h-1 bg-primary mx-auto rounded-full mb-6"></div>
+                <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto" data-i18n="management-subtitle">Sizi hedeflerinize ulaştıracak alanında uzman, milli ve profesyonel eğitmenlerimizle tanışın.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+                <!-- Muhammet Raşit Bozkurt -->
+                <div class="bg-lightBg dark:bg-darkBg rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 group border border-gray-100 dark:border-gray-800">
+                    <div class="h-96 overflow-hidden relative">
+                        <img src="foto-12.webp" alt="Muhammet Raşit Bozkurt" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute bottom-0 w-full h-1/2 bg-gradient-to-t from-black/80 to-transparent"></div>
+                    </div>
+                    <div class="p-8 relative -mt-16 bg-lightBg dark:bg-darkBg rounded-t-3xl z-10 mx-2">
+                        <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-1">Muhammet Raşit Bozkurt</h3>
+                        <p class="text-primary font-semibold mb-4 tracking-wide" data-i18n="title-milli">Milli Sporcu ve Antrenör</p>
+                        <p class="text-gray-600 dark:text-gray-400 line-clamp-3" data-i18n="desc-muhammet">Yılların verdiği tecrübe, profesyonel vücut geliştirme disiplini ve milli sporcu kimliğiyle antrenmanlarınıza vizyon katar. Kişiye özel programlarla maksimum verim.</p>
+                    </div>
+                </div>
+
+                <!-- Merve Bozkurt -->
+                <div class="bg-lightBg dark:bg-darkBg rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 group border border-gray-100 dark:border-gray-800">
+                    <div class="h-96 overflow-hidden relative">
+                        <img src="foto-11.webp" alt="Merve Bozkurt" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute bottom-0 w-full h-1/2 bg-gradient-to-t from-black/80 to-transparent"></div>
+                    </div>
+                    <div class="p-8 relative -mt-16 bg-lightBg dark:bg-darkBg rounded-t-3xl z-10 mx-2">
+                        <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-1">Merve Bozkurt</h3>
+                        <p class="text-primary font-semibold mb-4 tracking-wide" data-i18n="title-pilates">Pilates Uzmanı</p>
+                        <p class="text-gray-600 dark:text-gray-400 line-clamp-3" data-i18n="desc-merve">Esneklik, duruş bozuklukları ve core bölgesi güçlendirme üzerine uzmanlaşmış profesyonel pilates eğitmeni. Sağlıklı bir bedene giden yolda rehberiniz.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="gallery" class="py-24 bg-lightBg dark:bg-darkBg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-black mb-4 text-gray-900 dark:text-white" data-i18n="gallery-title">Salonumuzdan Kareler</h2>
+                <div class="w-24 h-1 bg-primary mx-auto rounded-full mb-6"></div>
+                <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto" data-i18n="gallery-subtitle">Modern ekipmanlarımız ve ferah çalışma alanlarımızı inceleyin.</p>
+            </div>
+
+            <!-- Symmetric CSS Grid Layout -->
+            <div class="gallery-grid">
+                <!-- Original Photos -->
+                <div class="gallery-item rounded-xl overflow-hidden">
+                    <img src="foto-1.webp" alt="Gym Equipment" class="w-full h-full object-cover">
+                </div>
+                <div class="gallery-item rounded-xl overflow-hidden">
+                    <img src="foto-2.webp" alt="Weights Area" class="w-full h-full object-cover">
+                </div>
+                <div class="gallery-item rounded-xl overflow-hidden">
+                    <img src="foto-9.webp" alt="Gym View" class="w-full h-full object-cover">
+                </div>
+                <div class="gallery-item rounded-xl overflow-hidden">
+                    <img src="foto-6.webp" alt="Dumbbells" class="w-full h-full object-cover">
+                </div>
+                <div class="gallery-item rounded-xl overflow-hidden">
+                    <img src="foto-7.webp" alt="Awards and Details" class="w-full h-full object-cover">
+                </div>
+                <div class="gallery-item rounded-xl overflow-hidden">
+                    <img src="foto-8.webp" alt="Stairs and Lounge" class="w-full h-full object-cover">
+                </div>
+                <!-- Newly Added Photos -->
+                <div class="gallery-item rounded-xl overflow-hidden">
+                    <img src="foto13.webp" alt="Lounge Area" class="w-full h-full object-cover">
+                </div>
+                <div class="gallery-item rounded-xl overflow-hidden">
+                    <img src="foto16.webp" alt="Weight Machine" class="w-full h-full object-cover">
+                </div>
+                <div class="gallery-item rounded-xl overflow-hidden">
+                    <img src="foto15.webp" alt="Dumbbell Rack" class="w-full h-full object-cover">
+                </div>
+                <div class="gallery-item rounded-xl overflow-hidden">
+                    <img src="foto14.webp" alt="Pilates Equipment" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tanıtım Videosu Section -->
+    <section id="video-tour" class="py-24 bg-lightCard dark:bg-darkCard border-t border-b border-gray-200 dark:border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-5xl font-black mb-4 text-gray-900 dark:text-white">
+                    <span class="text-primary" data-i18n="tour-title">Tanıtım</span> <span data-i18n="tour-title2">Videosu</span>
+                </h2>
+                <div class="w-24 h-1 bg-primary mx-auto rounded-full mb-6"></div>
+                <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto" data-i18n="tour-subtitle">Salonumuzun enerjisini ve detaylarını tanıtım videomuzda keşfedin.</p>
+            </div>
+
+            <!-- Instagram Embedded Video -->
+            <div class="w-full max-w-md mx-auto relative rounded-2xl overflow-hidden shadow-2xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-gray-800">
+                <iframe 
+                    src="https://www.instagram.com/p/DZCqP5pIrIm/embed" 
+                    width="100%" 
+                    height="680" 
+                    frameborder="0" 
+                    scrolling="no" 
+                    allowtransparency="true" 
+                    class="w-full block">
+                </iframe>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="py-24 bg-lightBg dark:bg-darkBg relative overflow-hidden">
+        <!-- Abstract shape -->
+        <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+        <div class="absolute bottom-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                
+                <!-- Contact Info -->
+                <div>
+                    <h2 class="text-3xl md:text-5xl font-black mb-6 text-gray-900 dark:text-white">
+                        <span data-i18n="contact-title1">Bize</span> <span class="text-primary" data-i18n="contact-title2">Ulaşın</span>
+                    </h2>
+                    <p class="text-lg text-gray-600 dark:text-gray-400 mb-10" data-i18n="contact-desc">Soru, görüş ve üyelik işlemleri için bizimle iletişime geçebilirsiniz. Sizi aramızda görmek için sabırsızlanıyoruz.</p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-lightCard dark:bg-darkCard rounded-full flex items-center justify-center text-primary shadow-sm border border-gray-100 dark:border-gray-800">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900 dark:text-white" data-i18n="contact-address-title">Adres</h4>
+                                <p class="text-gray-600 dark:text-gray-400">23 Nisan Mah. Köroğlu cd. No:3D A0 D blok Nilüfer/BURSA, Bursa 16230</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-lightCard dark:bg-darkCard rounded-full flex items-center justify-center text-primary shadow-sm border border-gray-100 dark:border-gray-800">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900 dark:text-white" data-i18n="contact-phone-title">Telefon</h4>
+                                <p class="text-gray-600 dark:text-gray-400">+90 555 123 45 67</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-lightCard dark:bg-darkCard rounded-full flex items-center justify-center text-primary shadow-sm border border-gray-100 dark:border-gray-800">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900 dark:text-white" data-i18n="contact-email-title">E-Posta</h4>
+                                <p class="text-gray-600 dark:text-gray-400">info@ingym.com</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Instagram Link -->
+                    <div class="mt-12 p-6 bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] rounded-2xl text-white shadow-xl hover:scale-105 transition-transform duration-300">
+                        <a href="https://www.instagram.com/in.gymfitness/" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between group">
+                            <div class="flex items-center gap-4">
+                                <i class="fab fa-instagram text-4xl group-hover:rotate-12 transition-transform"></i>
+                                <div>
+                                    <h4 class="font-bold text-xl leading-tight" data-i18n="ig-title">Bizi Instagram'da Takip Edin</h4>
+                                    <p class="text-white/80 text-sm">@in.gymfitness</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-arrow-right text-xl opacity-50 group-hover:opacity-100 group-hover:translate-x-2 transition-all"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Map / Graphic Area -->
+                <div class="h-[400px] rounded-3xl overflow-hidden shadow-2xl relative bg-zinc-200 dark:bg-zinc-800">
+                    <img src="foto-5.webp" alt="ingym Location" class="w-full h-full object-cover opacity-80 mix-blend-overlay">
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="text-center bg-white/90 dark:bg-black/80 backdrop-blur-sm p-6 rounded-2xl shadow-xl">
+                            <span class="text-3xl font-black text-primary block mb-2">ingym</span>
+                            <span class="text-gray-800 dark:text-white font-medium" data-i18n="contact-map-text">Sizi Bekliyoruz</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-lightCard dark:bg-darkCard border-t border-gray-200 dark:border-gray-800 py-10">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <span class="font-black text-3xl tracking-tighter text-primary block mb-4">ingym</span>
+            <p class="text-gray-500 dark:text-gray-400 mb-6" data-i18n="footer-desc">Sağlıklı yaşamın merkezi.</p>
+            <div class="flex justify-center gap-4 mb-8">
+                <a href="https://www.instagram.com/in.gymfitness/" target="_blank" class="w-10 h-10 rounded-full bg-lightBg dark:bg-darkBg flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-white hover:bg-primary transition-all border border-gray-200 dark:border-gray-700">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </div>
+            <p class="text-gray-400 dark:text-gray-500 text-sm">
+                &copy; 2026 ingym. <span data-i18n="footer-rights">Tüm hakları saklıdır.</span>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. Translation Dictionary (Turkish & English) ---
+        const translations = {
+            tr: {
+                "nav-home": "Ana Sayfa",
+                "nav-about": "Hakkımızda",
+                "nav-management": "Yönetim",
+                "nav-gallery": "Galeri",
+                "nav-tour": "Tanıtım Videosu",
+                "nav-contact": "İletişim",
+                "hero-title1": "Sınırlarını",
+                "hero-title2": "Zorla",
+                "hero-subtitle": "ingym ile gücünü keşfet, potansiyelini zirveye taşı. Profesyonel ekipmanlar ve uzman antrenörlerle hedefine ulaş!",
+                "btn-discover": "Keşfet",
+                "btn-join": "Bize Katıl",
+                "about-title": "Hakkında",
+                "about-p1": "ingym, sadece bir spor salonu değil, bir yaşam tarzı merkezidir. Amacımız, her seviyeden bireyin fiziksel ve zihinsel potansiyeline ulaşmasını sağlamaktır.",
+                "about-p2": "Modern ekipmanlarımız, ferah antrenman alanımız ve profesyonel ekibimizle size en iyi spor deneyimini sunmak için buradayız. Vücut geliştirme, fitness veya pilates; hedefiniz ne olursa olsun, doğru yerdesiniz.",
+                "about-feature1": "Modern Ekipmanlar",
+                "about-feature1-desc": "En son teknoloji cihazlar",
+                "about-image-text": "Ferah ve Modern Alanlar",
+                "management-title": "Yönetim Kadromuz",
+                "management-subtitle": "Sizi hedeflerinize ulaştıracak alanında uzman, milli ve profesyonel eğitmenlerimizle tanışın.",
+                "title-milli": "Milli Sporcu ve Antrenör",
+                "desc-muhammet": "Yılların verdiği tecrübe, profesyonel vücut geliştirme disiplini ve milli sporcu kimliğiyle antrenmanlarınıza vizyon katar. Kişiye özel programlarla maksimum verim.",
+                "title-pilates": "Pilates Uzmanı",
+                "desc-merve": "Esneklik, duruş bozuklukları ve core bölgesi güçlendirme üzerine uzmanlaşmış profesyonel pilates eğitmeni. Sağlıklı bir bedene giden yolda rehberiniz.",
+                "gallery-title": "Salonumuzdan Kareler",
+                "gallery-subtitle": "Modern ekipmanlarımız ve ferah çalışma alanlarımızı inceleyin.",
+                "tour-title": "Tanıtım",
+                "tour-title2": "Videosu",
+                "tour-subtitle": "Salonumuzun enerjisini ve detaylarını tanıtım videomuzda keşfedin.",
+                "contact-title1": "Bize",
+                "contact-title2": "Ulaşın",
+                "contact-desc": "Soru, görüş ve üyelik işlemleri için bizimle iletişime geçebilirsiniz. Sizi aramızda görmek için sabırsızlanıyoruz.",
+                "contact-address-title": "Adres",
+                "contact-phone-title": "Telefon",
+                "contact-email-title": "E-Posta",
+                "ig-title": "Bizi Instagram'da Takip Edin",
+                "contact-map-text": "Sizi Bekliyoruz",
+                "footer-desc": "Sağlıklı yaşamın merkezi.",
+                "footer-rights": "Tüm hakları saklıdır."
+            },
+            en: {
+                "nav-home": "Home",
+                "nav-about": "About Us",
+                "nav-management": "Management",
+                "nav-gallery": "Gallery",
+                "nav-tour": "Promo Video",
+                "nav-contact": "Contact",
+                "hero-title1": "Push Your",
+                "hero-title2": "Limits",
+                "hero-subtitle": "Discover your strength with ingym, take your potential to the top. Reach your goals with professional equipment and expert trainers!",
+                "btn-discover": "Discover",
+                "btn-join": "Join Us",
+                "about-title": "About",
+                "about-p1": "ingym is not just a gym, it's a lifestyle center. Our goal is to enable individuals of all levels to reach their physical and mental potential.",
+                "about-p2": "We are here to offer you the best sports experience with our modern equipment, spacious training area, and professional team. Bodybuilding, fitness, or pilates; whatever your goal is, you are in the right place.",
+                "about-feature1": "Modern Equipment",
+                "about-feature1-desc": "State-of-the-art machines",
+                "about-image-text": "Spacious & Modern Areas",
+                "management-title": "Our Management",
+                "management-subtitle": "Meet our expert, national, and professional trainers who will help you reach your goals.",
+                "title-milli": "National Athlete & Trainer",
+                "desc-muhammet": "Adds vision to your workouts with years of experience, professional bodybuilding discipline, and national athlete identity. Maximum efficiency with personalized programs.",
+                "title-pilates": "Pilates Expert",
+                "desc-merve": "Professional pilates instructor specializing in flexibility, posture disorders, and core strengthening. Your guide on the path to a healthy body.",
+                "gallery-title": "Gallery",
+                "gallery-subtitle": "Explore our modern equipment and spacious workspaces.",
+                "tour-title": "Promo",
+                "tour-title2": "Video",
+                "tour-subtitle": "Discover the energy and details of our gym in our promo video.",
+                "contact-title1": "Contact",
+                "contact-title2": "Us",
+                "contact-desc": "You can contact us for your questions, feedback, and membership processes. We look forward to seeing you among us.",
+                "contact-address-title": "Address",
+                "contact-phone-title": "Phone",
+                "contact-email-title": "Email",
+                "ig-title": "Follow Us on Instagram",
+                "contact-map-text": "We Are Waiting For You",
+                "footer-desc": "The center of healthy living.",
+                "footer-rights": "All rights reserved."
+            }
+        };
+
+        // --- State Variables ---
+        let currentLang = localStorage.getItem('ingym_lang') || 'tr';
+        
+        // Setup initial theme based on system preference or localStorage
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        // --- DOM Elements ---
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const themeToggleMobileBtn = document.getElementById('themeToggleMobile');
+        const langToggleBtn = document.getElementById('langToggle');
+        const langToggleMobileBtn = document.getElementById('langToggleMobile');
+        const currentLangDisplay = document.getElementById('currentLangDisplay');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+        const sliderWrapper = document.querySelector('.slider-wrapper');
+        const sliderPrevBtn = document.querySelector('.slider-btn-prev');
+        const sliderNextBtn = document.querySelector('.slider-btn-next');
+
+        // --- Functions ---
+        
+        // Theme Toggle Function
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+            }
+        }
+
+        // Language Toggle Function
+        function toggleLanguage() {
+            currentLang = currentLang === 'tr' ? 'en' : 'tr';
+            localStorage.setItem('ingym_lang', currentLang);
+            applyTranslations();
+            updateLangDisplay();
+        }
+
+        // Apply Translations
+        function applyTranslations() {
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    el.textContent = translations[currentLang][key];
+                }
+            });
+            document.documentElement.lang = currentLang;
+        }
+
+        function updateLangDisplay() {
+            currentLangDisplay.textContent = currentLang === 'tr' ? 'EN' : 'TR';
+        }
+
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            mobileMenu.classList.toggle('hidden');
+        }
+
+        // Slider Functionality
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.slider-slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slideIndex = (n + totalSlides) % totalSlides;
+            sliderWrapper.style.transform = `translateX(-${slideIndex * 100}%)`;
+        }
+
+        function nextSlide() {
+            showSlide(slideIndex + 1);
+        }
+
+        function prevSlide() {
+            showSlide(slideIndex - 1);
+        }
+
+        // --- Event Listeners ---
+        themeToggleBtn.addEventListener('click', toggleTheme);
+        themeToggleMobileBtn.addEventListener('click', toggleTheme);
+        
+        langToggleBtn.addEventListener('click', toggleLanguage);
+        langToggleMobileBtn.addEventListener('click', toggleLanguage);
+        
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+
+        // Close mobile menu when a link is clicked
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        if (sliderPrevBtn && sliderNextBtn) {
+            sliderPrevBtn.addEventListener('click', prevSlide);
+            sliderNextBtn.addEventListener('click', nextSlide);
+            // Auto-play slider
+            setInterval(nextSlide, 5000); // Change slide every 5 seconds
+        }
+
+        // Initialize App
+        applyTranslations();
+        updateLangDisplay();
+    </script>
+</body>
+</html>
